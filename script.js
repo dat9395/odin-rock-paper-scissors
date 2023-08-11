@@ -26,48 +26,54 @@ function playRound(playerSelection, computerSelection) {
     return playerToComputer[playerSelection][computerSelection];
 }
 
-function game() {
-    // Variables to store scores
-    let playerScore = 0;
-    let computerScore = 0;
-    
-    let count = 1;
-    while (count <= 5) {
-        console.log("ROUND " + count);
-        count ++;
+// HTML References
+let playerScore = document.querySelector("#score-player > span");
+let computerScore = document.querySelector("#score-computer > span");
+let round = document.querySelector("#round > span");
+let announce = document.querySelector("#announce");
+let gameDiv = document.querySelector("#game");
+let buttons = document.querySelectorAll("#game > button");
 
-        // Prompt player to choose and ensure answer is valid
-        let playerSelection = prompt("Choose between PAPER, ROCK or SCISSORS:").toLowerCase();
-        while (playerSelection != "rock" && playerSelection != "paper" && playerSelection != "scissors") {
-            playerSelection = prompt("Invalid value! Please choose again between PAPER, ROCK or SCISSORS:").toLowerCase();
-        }
+// Prepare a new game button
+let newGame = document.createElement("button");
+newGame.id = "new-game";
+newGame.innerText = "NEW GAME";
 
-        // Get computer's choice and display it
-        const computerSelection = getComputerChoice();
-        console.log("Computer's choice: " + computerSelection.toUpperCase())
-        
-        // Get result, calculate score and display
-        let result = playRound(playerSelection, computerSelection);
+// Add click event to buttons triggering game
+buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+        let result = playRound(button.id, getComputerChoice());
+        // Update scores
         if (result.toLowerCase().includes("win") == true) {
-            playerScore ++;
+            playerScore.innerText ++;
         }
         else if (result.toLowerCase().includes("lose") == true) {
-            computerScore ++;
+            computerScore.innerText ++;
         }
-        console.log(result);
-        console.log("Current scores: Player (" + playerScore + ") vs Computer (" + computerScore + ")")
-    }
+        
+        // Update round number and result
+        round.innerText ++;
+        announce.innerText = result;
 
-    if (playerScore > computerScore) {
-        console.log("Player wins!");
-    }
-
-    else if (playerScore < computerScore) {
-        console.log("Player loses!");
-    }
-    else {
-        console.log("Draw!");
-    }
-}
-   
-game();
+        // Finish game when score reaches 5 and annouce winner
+        if (playerScore.innerText == 5 || computerScore.innerText == 5) {
+            if (playerScore.innerText == 5) {
+                announce.innerText += ". PLAYER WINS THE GAME!";
+            }
+            else {
+                announce.innerText += ". COMPUTER WINS THE GAME!";
+            }
+            
+            // Disable buttons to end game
+            buttons.forEach((button) => {
+                button.setAttribute("disabled", "");
+            })
+            
+            // Add new game button prepared earlier, which reload the page
+            gameDiv.appendChild(newGame);
+            newGame.addEventListener("click", () => {
+                window.location.reload();
+            })
+        }
+    })
+})
